@@ -5,6 +5,8 @@ namespace RaceTo21
 {
     public class CardTable
     {
+        //a list to save playerNames
+        public List<string> playerNames = new List<string>();
         public CardTable()
         {
             Console.WriteLine("Setting Up Table...");
@@ -50,21 +52,27 @@ namespace RaceTo21
         public string GetPlayerName(int playerNum)
         {
             Console.Write("What is the name of player# " + playerNum + "? ");
-            string response = Console.ReadLine();
-            while (response.Length < 1)
+            //Console.ReadLine() may be null, use ? to include null  
+            string? response = Console.ReadLine();
+            //add the function to check if there is the same name in the list
+            while (response==null || response.Length<1 || CheckSameName(response))
             {
-                Console.WriteLine("Invalid name.");
+                Console.WriteLine("Invalid name or the name have been taken");
                 Console.Write("What is the name of player# " + playerNum + "? ");
                 response = Console.ReadLine();
             }
+            //add the names that users inputted to the playerNames list
+            //so that we can use them after restart the game
+            playerNames.Add(response);
             return response;
         }
 
-        public bool OfferACard(Player player)
+        //replaced by Program.YesOrNo(string question)
+        /*public bool OfferACard(Player player)
         {
             while (true)
             {
-                Console.Write(player.name + ", do you want a card? (Y/N)");
+                Console.Write(player.name + ", do you want a card? (Y/N) ");
                 string response = Console.ReadLine();
                 if (response.ToUpper().StartsWith("Y"))
                 {
@@ -79,20 +87,24 @@ namespace RaceTo21
                     Console.WriteLine("Please answer Y(es) or N(o)!");
                 }
             }
-        }
+        }*/
 
         public void ShowHand(Player player)
         {
             if (player.cards.Count > 0)
             {
-                Console.Write(player.name + " has: ");
+                Console.Write(player.name + " has ");
+                //replaced string with Card class to store short and long name
                 //foreach (string card in player.cards)
                 /*foreach (Card card in player.cards)
                 {
-                    Console.Write(card + " ");
+                    //Console.Write(card + " ");
                     Console.Write(", " + card.displayName);
                 }*/
+                //the first card should shows without ","
                 Console.Write(player.cards[0].displayName);
+                //the other cards should shows with ","
+                //use for loop to start from the second card (index 1)
                 for (var i=1; i<player.cards.Count; i++)
                 {
                     Console.Write(", " + player.cards[i].displayName);
@@ -108,10 +120,45 @@ namespace RaceTo21
 
         public void ShowHands(List<Player> players)
         {
+            Console.WriteLine("Current Table:");
             foreach (Player player in players)
             {
                 ShowHand(player);
             }
+        }
+
+        public void AnnounceWinner(Player player)
+        {
+            if (player != null)
+            {
+                Console.WriteLine(player.name + " wins!");
+            }
+            else
+            {
+                //there will not be a situation that everyone busted
+                //since all but one player “busts”, remaining player should immediately win
+                //Console.WriteLine("Everyone busted!");
+                Console.WriteLine("Cannot find the winner");
+            }
+            //moved to Program.cs, because users are able to restart the game
+            //Console.Write("Press <Enter> to exit... ");
+            //while (Console.ReadKey().Key != ConsoleKey.Enter) { }
+        }
+
+        //check if there is the same name in the playerNames list
+        bool CheckSameName(string addName)
+        {
+            //check each name in the playerNames
+            foreach (string name in playerNames)
+            {
+                //if found the same name then return true for checking
+                if (addName == name)
+                {
+                    return true;
+                }
+            }
+            //if there is no the same name
+            return false;
         }
     }
 }

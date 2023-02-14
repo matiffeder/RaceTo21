@@ -7,14 +7,18 @@ namespace RaceTo21
 {
     public class Deck
     {
+        //replaced string with Card class to store short and long name
         //List<string> cards = new List<string>();
         List<Card> cards = new List<Card>();
+        //claim cardImg as a Dictionary to store the img
         public Dictionary<string, string> cardImg = new Dictionary<string, string>() { };
 
         public Deck()
         {
-            Console.WriteLine("*********** Building deck...");
+            Console.WriteLine("Building deck...");
             //string[] suits = { "S", "H", "C", "D" };
+            //since we need longname and shortname
+            //we can only store longnames of the suits and get its first character for shortname
             string[] suits = { "Spades", "Hearts", "Clubs", "Diamonds" };
 
             for (int cardVal = 1; cardVal <= 13; cardVal++)
@@ -45,6 +49,7 @@ namespace RaceTo21
                             cardName = cardVal.ToString();
                             //get long name by cardVal and index of numToWords
                             string[] numToWords = { "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten" };
+                            //the index start from 0, so we need to - 1
                             longName = numToWords[cardVal-1];
                             break;
                     }
@@ -69,23 +74,27 @@ namespace RaceTo21
             // (this should be easier to understand)
             for (int i=0; i<cards.Count; i++)
             {
+                //replaced string with Card class
                 //string tmp = cards[i];
                 Card tmp = cards[i];
                 int swapindex = rng.Next(cards.Count);
                 cards[i] = cards[swapindex];
                 cards[swapindex] = tmp;
             }
-            //add dict
+            //add card images to the dictionary by the index of the cards
             SetCardImg();
-            /* //testing
+            /*//testing
             Console.WriteLine("---------------------------"+cards[2].displayName.Substring(cards[2].displayName.LastIndexOf(" of ")+4).ToLower());
-            string test = Regex.Match(cards[2].id.Substring(0, 1), "[AJQK]").Success ? cards[2].id.Substring(0, 1) : cards[2].id.Substring(0, 1).PadLeft(2, '0');
+            //string test = Regex.Match(cards[2].id.Substring(0, 1), "[AJQK]").Success ? cards[2].id.Substring(0, 1) : cards[2].id.Substring(0, 1).PadLeft(2, '0');
+            string test = Regex.IsMatch(cards[2].id.Substring(0, 1), "[AJQK]") ? cards[2].id.Substring(0, 1) : cards[2].id.Substring(0, 1).PadLeft(2, '0');
             Console.WriteLine("---------------------------" + cards[2].id);
             Console.WriteLine("---------------------------" + test);
             Console.WriteLine(cardImg[cards[2].id]);
             */
         }
 
+        //I can't understand what this means
+        //Does that mean we will need to show the cards img on the further Blazor app?
         /* Maybe we can make a variation on this that's more useful,
          * but at the moment it's just really to confirm that our 
          * shuffling method(s) worked! And normally we want our card 
@@ -97,8 +106,9 @@ namespace RaceTo21
             for (int i=0; i<cards.Count; i++)
             {
                 //Console.Write(i+":"+cards[i]); // a list property can look like an Array!
-                //Console.Write(i + ":" + cards[i].id); // a list property can look like an Array!
-                Console.Write(i + ":" + cards[i].displayName); // a list property can look like an Array!
+                //Console.Write(i + ":" + cards[i].id);
+                //show the long name is console
+                Console.Write(i + ":" + cards[i].displayName);
                 if (i < cards.Count -1)
                 {
                     Console.Write(" ");
@@ -109,10 +119,14 @@ namespace RaceTo21
             }
         }
 
+        //There are to args in the Card.Card field
+        //so we need to give the two args back when we need to add the card into player's hand
+        //when (nextTask == Task.PlayerTurn)
         //public string DealTopCard()
         public (string, string) DealTopCard()
         {
             //string card = cards[cards.Count - 1];
+            //the index start from 0, so we need to -1
             string card = cards[cards.Count - 1].id;
             string cardLong = cards[cards.Count - 1].displayName;
             cards.RemoveAt(cards.Count - 1);
@@ -126,10 +140,12 @@ namespace RaceTo21
             {
                 //Substring(0, 1) : remain string characters from 0 to 1
                 //Use regular expression to find if the string contain A, J, Q, or K
-                //if contain do not add 0 before it
-                //todo: diff between Match and IsMatch
-                string num = Regex.Match(cards[i].id.Substring(0, 1), "[AJQK]").Success ? cards[i].id.Substring(0, 1) : cards[i].id.Substring(0, 1).PadLeft(2, '0');
+                //if contained, do not add 0 before it
+                //todo: diff between Match and IsMatch - seems nothing different
+                //string num = Regex.Match(cards[i].id.Substring(0, 1), "[AJQK]").Success ? cards[i].id.Substring(0, 1) : cards[i].id.Substring(0, 1).PadLeft(2, '0');
+                string num = Regex.IsMatch(cards[i].id.Substring(0, 1), "[AJQK]") ? cards[i].id.Substring(0, 1) : cards[i].id.Substring(0, 1).PadLeft(2, '0');
                 //find the index of " of " and remain the characters after " of " according to the index
+                //there are four index in " of ", so we need to + 4 to cut it
                 cardImg.Add(cards[i].id, "card_" + cards[i].displayName.Substring(cards[i].displayName.IndexOf(" of ") + 4).ToLower() + "_" + num);
             }
         }

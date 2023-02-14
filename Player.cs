@@ -6,6 +6,7 @@ namespace RaceTo21
 	public class Player
 	{
 		public string name;
+        //replaced string with Card class to store short and long name
         //public List<string> cards = new List<string>();
         public List<Card> cards = new List<Card>();
         public PlayerStatus status = PlayerStatus.active;
