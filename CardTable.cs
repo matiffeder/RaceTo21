@@ -212,20 +212,39 @@ namespace RaceTo21
             //save the highest score in the list
             //the score will change because the highest player will remove from playesTemp
             int highScore;
+
+            int lowScore = 0;
+            //-----find the lowest score in the playesTemp list to compare the highest later
+            for (int i = 0; i < players.Count; i++)
+            {
+                //if the score of current player is lower then current lowScore, then the player has the lowest score at the moment 
+                if (playesTemp[i].gamesScore <= lowScore)
+                {
+                    lowScore = playesTemp[i].gamesScore;
+                }
+            }   //so, if the loop ended, we can find the lowest score and the player in the current playesTemp list
+
             //compare player scores by "players.Count" times since every card needs to comapre with others
             //and we need to make sure the last one also in the scoresRanking list
             for (int i = 0; i < players.Count; i++)
             {
-                //reset highScore to compare the next high score, also a defualt value
-                //the min score got in one game would be 21-(20+10)=-9, the min point (will be score) to win a game is 1, the max goal is 210, -9*(210/1)=-1890.
-                //but there other 3 (4 Ace) players, so it sould also * 3, but the possiblily is very small, and I am not very sure about this math 
-                highScore = -1890;
+                //reset highScore to lowest to compare the next high score, also a defualt value
+                highScore = lowScore;
+                /* 
+                //-----reset highScore to compare the next high score, also a defualt value
+                the min score got in one game would be 21-(20+10)=-9, the min point (will be score) to win a game is 1, the max goal is 210, -9*(210/1)=-1890.
+                but if there are other 4 players (4 Ace), the possiblity to win a game with 1 point will be very small (4/52) * (3/51) * (2/50) * (1/49), and I am not very sure about these maths
+                the winner get 210, the other 3 player could get 219, -9*219*3=-1971, the lowest score would be -1890+(-1971)
+                there will also be 2 points winner in 8 players games, -9*(210/2)=945 + -9*(208/2)*6=-5616 | *6 is because 1 player always bust the other is winner who get 210
+                highScore = -6461;
+                */
                 //Console.WriteLine("------------------------ID-" + i);
                 //Console.WriteLine("---------------------Count-" + playesTemp.Count);
                 //I use j-- just because I want to show the list in original order if players have the same score
                 //find the highest score in the playesTemp list
                 for (int j = playesTemp.Count - 1; j >= 0; j--)
                 {
+                    //if the score of current player is higher then current highScore, then the player has the highest score at the moment 
                     if (playesTemp[j].gamesScore >= highScore)
                     {
                         //save the highest score from playesTemp list
@@ -233,7 +252,8 @@ namespace RaceTo21
                         //save player who have the highest score from playesTemp list
                         highPlayer = playesTemp[j];
                     }
-                }
+                }   //so, if the loop ended, we can find the highest score and the player in the current playesTemp list
+
                 //remove the player who have the highest score, to find the next highest score
                 playesTemp.Remove(highPlayer);
                 //add the current highest score player to last index of the scoresRanking, so the list will order by scores
@@ -243,6 +263,7 @@ namespace RaceTo21
 
                 //then find the next highest score in next loop
             }
+            //run loop in scoresRanking list to show player score by name
             foreach (Player player in scoresRanking)
             {
                 Console.WriteLine(player.name + ": " + player.gamesScore);
