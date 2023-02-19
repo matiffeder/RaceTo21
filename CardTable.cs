@@ -1,63 +1,90 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace RaceTo21
 {
     public class CardTable
     {
         //a list to save playerNames
-        public List<string> playerNames = new List<string>();
+        //save player names list privatly
+        private List<string> _playerNames = new List<string>();
+        //use public property to get and set player's names list
+        public List<string> playerNames { get { return _playerNames; } set { _playerNames = value; } }
+
         public CardTable()
         {
+            //output "Setting Up Table..." on console
             Console.WriteLine("Setting Up Table...");
         }
 
-        /* Shows the name of each player and introduces them by table position.
-         * Is called by Game object.
-         * Game object provides list of players.
-         * Calls Introduce method on each player object.
+        /* 
+         * output each player's intronduction with their order
+         * call: Introduce - player
+         * called by: game
+         * parameter: List<Player> - players data
+         * return: no (void)
          */
         public void ShowPlayers(List<Player> players)
         {
+            //run for loop to show each each player's intronduction by count of players
             for (int i = 0; i < players.Count; i++)
             {
-                players[i].Introduce(i+1); // List is 0-indexed but user-friendly player positions would start with 1...
+                //the for loop start with 0, but player num start with 1, so num=index+1
+                players[i].Introduce(i+1);
             }
         }
 
-        /* Gets the user input for number of players.
-         * Is called by Game object.
-         * Returns number of players to Game object.
-         */
-        public int GetNumberOfPlayers()
+        /* 
+        * get the number from input
+        * call: no
+        * called by: game
+        * parameter: no
+        * return: int - count of players, scores to win the final game
+        */
+        public static int GetNumber(string question, int minNum, int maxNum)
         {
-            Console.Write("How many players? ");
+            Console.Write(question);
+            //read the input in the console and save as response
             string response = Console.ReadLine();
-            int numberOfPlayers;
-            while (int.TryParse(response, out numberOfPlayers) == false
-                || numberOfPlayers < 2 || numberOfPlayers > 8)
+            //use for checking if response is number
+            int numberOut;
+            //an endless loop to check if response is number, <minNum, >maxNum, if it is num, it will out numberOut
+            //will stop loop until response is number, >=minNum, <=8
+            while (int.TryParse(response, out numberOut) == false
+                                || numberOut < minNum
+                                || numberOut > maxNum)
             {
-                Console.WriteLine("Invalid number of players.");
-                Console.Write("How many players?");
+                //use $ to allowe write value in string with {}
+                //https://learn.microsoft.com/zh-tw/dotnet/csharp/language-reference/tokens/interpolated
+                Console.WriteLine($"Invalid number of players ({minNum}-{maxNum})");
+                //ask again until response is number, >=minNum, <=maxNum
+                Console.Write(question);
                 response = Console.ReadLine();
             }
-            return numberOfPlayers;
+            return numberOut;
         }
 
-        /* Gets the name of a player
-         * Is called by Game object
-         * Game object provides player number
-         * Returns name of a player to Game object
-         */
+        /* 
+        * get the name of player by input, ask by player #
+        * call: no
+        * called by: game
+        * parameter: int - player #
+        * return: string - name of player
+        */
         public string GetPlayerName(int playerNum)
         {
+            //ask by question by player #
             Console.Write("What is the name of player# " + playerNum + "? ");
             //Console.ReadLine() may be null, use ? to include null  
             string? response = Console.ReadLine();
+            //an endless loop to check if response is null, <1 character, a same name in the list
+            //will stop loop until response is not null, >1 character, no same name in the list
             //add the function to check if there is the same name in the list
             while (response==null || response.Length<1 || CheckSameName(response))
             {
                 Console.WriteLine("Invalid name or the name have been taken");
+                //ask again until response is not null, >1 character, no same name in the list
                 Console.Write("What is the name of player# " + playerNum + "? ");
                 response = Console.ReadLine();
             }
@@ -67,33 +94,20 @@ namespace RaceTo21
             return response;
         }
 
-        //replaced by Program.YesOrNo(string question)
-        /*public bool OfferACard(Player player)
-        {
-            while (true)
-            {
-                Console.Write(player.name + ", do you want a card? (Y/N) ");
-                string response = Console.ReadLine();
-                if (response.ToUpper().StartsWith("Y"))
-                {
-                    return true;
-                }
-                else if (response.ToUpper().StartsWith("N"))
-                {
-                    return false;
-                }
-                else
-                {
-                    Console.WriteLine("Please answer Y(es) or N(o)!");
-                }
-            }
-        }*/
-
+        /* 
+         * show the cards that a player has by player
+         * call: no
+         * called by: cardtable, game
+         * parameter: Player - player data
+         * return: no (void)
+         */
         public void ShowHand(Player player)
         {
+            //if player have one more cards
             if (player.cards.Count > 0)
             {
-                Console.Write(player.name + " has ");
+                //show player's name
+                Console.Write(player.name + " has: ");
                 //replaced string with Card class to store short and long name
                 //foreach (string card in player.cards)
                 /*foreach (Card card in player.cards)
@@ -107,31 +121,54 @@ namespace RaceTo21
                 //use for loop to start from the second card (index 1)
                 for (var i=1; i<player.cards.Count; i++)
                 {
+                    //show other cards
                     Console.Write(", " + player.cards[i].displayName);
                 }
-                Console.Write(" = " + player.score + "/21 ");
+                //show player's score
+                Console.Write(" = " + player.points + "/21 ");
+                //show bust, stay, win in the console
                 if (player.status != PlayerStatus.active)
                 {
+                    //shows as upper case and string
                     Console.Write("(" + player.status.ToString().ToUpper() + ")");
                 }
+                //write above in a line and output
                 Console.WriteLine();
             }
         }
 
+        /* 
+         * show the cards that all player has by player list
+         * call: ShowHand
+         * called by: game
+         * parameter: List<Player> - players data
+         * return: no (void)
+         */
         public void ShowHands(List<Player> players)
         {
-            Console.WriteLine("Current Table:");
+            Console.WriteLine("Current Table");
+            //run loop in players list to call ShowHand
             foreach (Player player in players)
             {
+                //show the cards that a player has by player
                 ShowHand(player);
             }
         }
 
+        /* 
+         * show the winner of the game by player (winner)
+         * call: no
+         * called by: game
+         * parameter: Player - winner
+         * return: no (void)
+         */
         public void AnnounceWinner(Player player)
         {
+            //if cannot get winner
             if (player != null)
             {
-                Console.WriteLine(player.name + " wins!");
+                //show the winner
+                Console.WriteLine(player.name + " wins this time!");
             }
             else
             {
@@ -145,8 +182,79 @@ namespace RaceTo21
             //while (Console.ReadKey().Key != ConsoleKey.Enter) { }
         }
 
-        //check if there is the same name in the playerNames list
-        bool CheckSameName(string addName)
+        /* 
+         * show the scores that all player has by player list
+         * call: no
+         * called by: game
+         * parameter: List<Player> - players data
+         * return: no (void)
+         */
+        public void ShowScores(List<Player> players)
+        {
+            Console.WriteLine("--------------------------------");
+            Console.WriteLine("Players Score Summary");
+
+            //run loop in players list to show player score by name
+            /*foreach (Player player in players)
+            {
+                Console.WriteLine(player.name + ": " + player.gamesScore);
+            }*/
+
+            //show the score in order
+            //save players list in temp because we will remove the highest after we found it
+            //so that we can compare the second high and so on
+            List<Player> playesTemp = new List<Player>(players);
+            //the list for show scores in order 
+            List<Player> scoresRanking = new List<Player>();
+            //save the player who have the highest score in the list
+            //the player will change because the highest player will remove from playesTemp
+            Player highPlayer = new Player("");
+            //save the highest score in the list
+            //the score will change because the highest player will remove from playesTemp
+            int highScore;
+            //compare player scores by "players.Count" times since every card needs to comapre with others
+            //and we need to make sure the last one also in the scoresRanking list
+            for (int i = 0; i < players.Count; i++)
+            {
+                //reset highScore to compare the next high score, also a defualt value
+                highScore = 0;
+                //Console.WriteLine("------------------------ID-" + i);
+                //Console.WriteLine("---------------------Count-" + playesTemp.Count);
+                //I use j-- just because I want to show the list in original order if players have the same score
+                //find the highest score in the playesTemp list
+                for (int j = playesTemp.Count - 1; j >= 0; j--)
+                {
+                    if (playesTemp[j].gamesScore >= highScore)
+                    {
+                        //save the highest score from playesTemp list
+                        highScore = playesTemp[j].gamesScore;
+                        //save player who have the highest score from playesTemp list
+                        highPlayer = playesTemp[j];
+                    }
+                }
+                //remove the player who have the highest score, to find the next highest score
+                playesTemp.Remove(highPlayer);
+                //add the current highest score player to last index of the scoresRanking, so the list will order by scores
+                scoresRanking.Add(highPlayer);
+                //Console.WriteLine("-----------------highScore-" + highScore);
+                //Console.WriteLine("===------------------------");
+
+                //then find the next highest score in next loop
+            }
+            foreach (Player player in scoresRanking)
+            {
+                Console.WriteLine(player.name + ": " + player.gamesScore);
+            }
+            scoresRanking.Clear();
+        }
+        /* 
+         * heck if there is the same name in the playerNames list to avoid confusing
+         * call: no
+         * called by: cardtable
+         * parameter: string - the name will add
+         * return: bool - true if there is the same name
+         */
+        private bool CheckSameName(string addName)
         {
             //check each name in the playerNames
             foreach (string name in playerNames)
