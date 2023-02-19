@@ -217,7 +217,9 @@ namespace RaceTo21
             for (int i = 0; i < players.Count; i++)
             {
                 //reset highScore to compare the next high score, also a defualt value
-                highScore = 0;
+                //the min score got in one game would be 21-(20+10)=-9, the min point (will be score) to win a game is 1, the max goal is 210, -9*(210/1)=-1890.
+                //but there other 3 (4 Ace) players, so it sould also * 3, but the possiblily is very small, and I am not very sure about this math 
+                highScore = -1890;
                 //Console.WriteLine("------------------------ID-" + i);
                 //Console.WriteLine("---------------------Count-" + playesTemp.Count);
                 //I use j-- just because I want to show the list in original order if players have the same score
@@ -245,6 +247,7 @@ namespace RaceTo21
             {
                 Console.WriteLine(player.name + ": " + player.gamesScore);
             }
+            //clear the list to store a new ranking
             scoresRanking.Clear();
         }
         /* 

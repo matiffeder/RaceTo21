@@ -147,6 +147,8 @@ namespace RaceTo21
                         if (player.points > 21)
                         {
                             player.status = PlayerStatus.bust;
+                            //if a player busted, the player's score will dedcut the additional point
+                            player.gamesScore += 21 - player.points;
                         }
                         //if the points of player > 21 then his status would be win
                         else if (player.points == 21)
